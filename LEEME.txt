@@ -1,0 +1,14 @@
+=== PROYECTO MANANTIALES INVEST ===
+
+Carpeta del sitio web. Guardá acá estos archivos con exactamente estos nombres:
+
+IMÁGENES DE RENDERS:
+  render-aerea.jpg       → vista aérea jardín/terraza  (Propiedad 1)
+  render-sala.jpg        → interior sala luz natural    (Propiedad 2)
+  render-cocina.jpg      → interior cocina/comedor      (Propiedad 3)
+  render-exterior.jpg    → frente de noche con auto     (imagen destacada)
+
+LOGO:
+  logo-manantiales.png   → tu logo con fondo transparente (o el que tenés)
+
+Una vez que los copiás acá, abrís manantiales-invest.html y todo aparece.
