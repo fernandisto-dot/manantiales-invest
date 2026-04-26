@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Perfil — Manantiales Invest</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0f1f3d; --navy-hover: #162d56;
+      --blue: #2563eb; --blue-light: #3b82f6; --blue-lighter: #eff6ff;
+      --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0;
+      --gray-300: #cbd5e1; --gray-400: #94a3b8; --gray-500: #64748b;
+      --gray-700: #334155; --white: #ffffff; --green: #10b981;
+      --green-light: #d1fae5; --danger: #ef4444; --danger-light: #fef2f2;
+      --sidebar-w: 240px;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--gray-50); display: flex; min-height: 100vh; }
+
+    /* SIDEBAR */
+    .sidebar { width: var(--sidebar-w); background: var(--navy); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
+    .sidebar-logo { padding: 24px 20px 20px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-logo img { height: 36px; width: auto; }
+    .sidebar-logo span { font-size: 0.95rem; font-weight: 700; color: var(--white); }
+    nav { flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 2px; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.88rem; font-weight: 500; transition: background .15s, color .15s; }
+    .nav-item:hover { background: var(--navy-hover); color: var(--white); }
+    .nav-item.active { background: var(--blue); color: var(--white); }
+    .nav-icon { font-size: 1rem; width: 20px; text-align: center; }
+    .nav-section { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.3); padding: 16px 12px 6px; font-weight: 600; }
+    .sidebar-user { padding: 16px 16px 20px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 10px; }
+    .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--blue); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 700; color: var(--white); flex-shrink: 0; }
+    .user-info { flex: 1; overflow: hidden; }
+    .user-name { font-size: 0.82rem; font-weight: 600; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-role { font-size: 0.72rem; color: rgba(255,255,255,0.4); }
+
+    /* MAIN */
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; }
+    .topbar { background: var(--white); border-bottom: 1px solid var(--gray-200); padding: 0 32px; height: 64px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+    .topbar-title { font-size: 1.1rem; font-weight: 700; color: var(--navy); }
+    .content { padding: 32px; flex: 1; max-width: 860px; }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 0; border-bottom: 2px solid var(--gray-200); margin-bottom: 28px; }
+    .tab { padding: 12px 24px; font-size: 0.88rem; font-weight: 600; color: var(--gray-500); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: color .15s, border-color .15s; }
+    .tab:hover { color: var(--navy); }
+    .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* Profile header */
+    .profile-header {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 28px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 20px;
+    }
+    .big-avatar {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: var(--blue);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; font-weight: 800; color: var(--white);
+      flex-shrink: 0;
+    }
+    .profile-header-info h2 { font-size: 1.2rem; font-weight: 800; color: var(--navy); }
+    .profile-header-info p { font-size: 0.85rem; color: var(--gray-500); margin-top: 4px; }
+    .plan-badge { display: inline-block; margin-top: 8px; padding: 3px 12px; background: var(--blue-lighter); color: var(--blue); font-size: 0.75rem; font-weight: 700; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+    /* Form */
+    .form-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: 12px; padding: 28px; margin-bottom: 20px; }
+    .form-card h3 { font-size: 0.95rem; font-weight: 700; color: var(--navy); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--gray-100); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+    label { font-size: 0.78rem; font-weight: 600; color: var(--gray-700); }
+    input, select, textarea {
+      padding: 10px 12px;
+      border: 1.5px solid var(--gray-300);
+      border-radius: 8px;
+      font-size: 0.88rem;
+      color: var(--navy);
+      background: var(--white);
+      outline: none;
+      font-family: inherit;
+      transition: border-color .2s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+    textarea { resize: vertical; min-height: 80px; }
+    .btn-save { padding: 10px 24px; background: var(--blue); color: var(--white); font-size: 0.88rem; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; transition: background .2s; margin-top: 16px; }
+    .btn-save:hover { background: #1d4ed8; }
+
+    /* KYC */
+    .kyc-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border: 1px solid var(--gray-200);
+      border-radius: 10px;
+      margin-bottom: 12px;
+      background: var(--white);
+    }
+    .kyc-left { display: flex; align-items: center; gap: 14px; }
+    .kyc-icon { font-size: 1.4rem; width: 40px; text-align: center; }
+    .kyc-info strong { font-size: 0.88rem; color: var(--navy); display: block; }
+    .kyc-info span { font-size: 0.78rem; color: var(--gray-500); }
+    .kyc-status { font-size: 0.78rem; font-weight: 700; }
+    .kyc-status.pending { color: #d97706; }
+    .kyc-status.verified { color: var(--green); }
+    .btn-upload { padding: 7px 16px; background: var(--gray-100); color: var(--gray-700); font-size: 0.78rem; font-weight: 600; border: 1px solid var(--gray-200); border-radius: 6px; cursor: pointer; transition: background .2s; }
+    .btn-upload:hover { background: var(--gray-200); }
+
+    /* Referidos */
+    .ref-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: 12px; padding: 28px; margin-bottom: 20px; }
+    .ref-card h3 { font-size: 0.95rem; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+    .ref-card p { font-size: 0.85rem; color: var(--gray-500); margin-bottom: 20px; line-height: 1.6; }
+    .ref-code-wrap { display: flex; gap: 10px; align-items: center; }
+    .ref-code { flex: 1; padding: 11px 14px; border: 1.5px solid var(--gray-200); border-radius: 8px; background: var(--gray-50); font-size: 1rem; font-weight: 700; color: var(--navy); letter-spacing: 0.08em; }
+    .btn-copy { padding: 11px 18px; background: var(--blue); color: var(--white); font-size: 0.82rem; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; transition: background .2s; }
+    .btn-copy:hover { background: #1d4ed8; }
+
+    /* Logout */
+    .btn-logout { padding: 10px 20px; background: var(--danger-light); color: var(--danger); font-size: 0.85rem; font-weight: 700; border: 1px solid #fecaca; border-radius: 8px; cursor: pointer; transition: background .2s; }
+    .btn-logout:hover { background: #fee2e2; }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <img src="../logo-manantiales.png" alt="Manantiales Invest" onerror="this.style.display='none'" />
+    <span>Manantiales</span>
+  </div>
+  <nav>
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon">🏠</span> Dashboard</a>
+    <a class="nav-item" href="propiedades.html"><span class="nav-icon">🏗️</span> Propiedades</a>
+    <a class="nav-item" href="inversiones.html"><span class="nav-icon">📈</span> Mis inversiones</a>
+    <div class="nav-section">Cuenta</div>
+    <a class="nav-item active" href="perfil.html"><span class="nav-icon">👤</span> Mi perfil</a>
+    <a class="nav-item" href="documentos.html"><span class="nav-icon">📄</span> Documentos</a>
+    <div class="nav-section">Soporte</div>
+    <a class="nav-item" href="mailto:info@manantiales.com"><span class="nav-icon">💬</span> Contacto</a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="user-avatar" id="userAvatar">F</div>
+    <div class="user-info">
+      <div class="user-name" id="userName">Inversor</div>
+      <div class="user-role">Inversor</div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <span class="topbar-title">Mi Cuenta</span>
+  </div>
+
+  <div class="content">
+
+    <div class="profile-header">
+      <div class="big-avatar" id="bigAvatar">F</div>
+      <div class="profile-header-info">
+        <h2 id="profileName">Inversor</h2>
+        <p id="profileEmail">—</p>
+        <span class="plan-badge">Inversor estándar</span>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('perfil')">Perfil</div>
+      <div class="tab" onclick="switchTab('kyc')">Verificación</div>
+      <div class="tab" onclick="switchTab('referidos')">Referidos</div>
+    </div>
+
+    <!-- PERFIL -->
+    <div class="tab-panel active" id="tab-perfil">
+      <div class="form-card">
+        <h3>Información personal</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" id="fieldNombre" placeholder="Tu nombre" />
+          </div>
+          <div class="form-group">
+            <label>Apellido</label>
+            <input type="text" id="fieldApellido" placeholder="Tu apellido" />
+          </div>
+          <div class="form-group">
+            <label>Correo electrónico</label>
+            <input type="email" id="fieldEmail" placeholder="tu@email.com" />
+          </div>
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="tel" id="fieldTelefono" placeholder="+54 9 11 0000 0000" />
+          </div>
+          <div class="form-group">
+            <label>País</label>
+            <select id="fieldPais">
+              <option value="">Seleccioná un país</option>
+              <option value="AR">Argentina</option>
+              <option value="CO">Colombia</option>
+              <option value="UY">Uruguay</option>
+              <option value="CL">Chile</option>
+              <option value="MX">México</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Ciudad</label>
+            <input type="text" id="fieldCiudad" placeholder="Tu ciudad" />
+          </div>
+          <div class="form-group full">
+            <label>Nota o comentario</label>
+            <textarea id="fieldNota" placeholder="Información adicional..."></textarea>
+          </div>
+        </div>
+        <button class="btn-save" onclick="saveProfile()">Guardar cambios</button>
+      </div>
+
+      <div style="margin-top: 8px;">
+        <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
+      </div>
+    </div>
+
+    <!-- KYC -->
+    <div class="tab-panel" id="tab-kyc">
+      <div class="form-card">
+        <h3>Verificación de identidad</h3>
+
+        <div class="kyc-item">
+          <div class="kyc-left">
+            <div class="kyc-icon">🪪</div>
+            <div class="kyc-info">
+              <strong>Documento de identidad</strong>
+              <span>DNI, Cédula o Pasaporte (frente y dorso)</span>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span class="kyc-status pending">⏳ Pendiente</span>
+            <button class="btn-upload">Subir archivo</button>
+          </div>
+        </div>
+
+        <div class="kyc-item">
+          <div class="kyc-left">
+            <div class="kyc-icon">🏠</div>
+            <div class="kyc-info">
+              <strong>Comprobante de domicilio</strong>
+              <span>Servicio o extracto bancario reciente</span>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span class="kyc-status pending">⏳ Pendiente</span>
+            <button class="btn-upload">Subir archivo</button>
+          </div>
+        </div>
+
+        <div class="kyc-item">
+          <div class="kyc-left">
+            <div class="kyc-icon">🤳</div>
+            <div class="kyc-info">
+              <strong>Selfie con documento</strong>
+              <span>Foto sosteniendo el documento junto a tu rostro</span>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span class="kyc-status pending">⏳ Pendiente</span>
+            <button class="btn-upload">Subir archivo</button>
+          </div>
+        </div>
+
+        <p style="font-size:0.78rem; color:var(--gray-400); margin-top:16px;">
+          La verificación puede demorar hasta 48hs hábiles. Recibirás un email de confirmación.
+        </p>
+      </div>
+    </div>
+
+    <!-- REFERIDOS -->
+    <div class="tab-panel" id="tab-referidos">
+      <div class="ref-card">
+        <h3>🎁 Referí a un amigo</h3>
+        <p>Compartí tu código de referido y cuando tu amigo realice su primera inversión, ambos reciben un beneficio exclusivo en su próximo proyecto.</p>
+        <div class="ref-code-wrap">
+          <input class="ref-code" id="refCode" value="MAN-XXXX" readonly />
+          <button class="btn-copy" onclick="copyRef()">Copiar</button>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h3>Tus referidos</h3>
+        <p style="font-size:0.85rem; color:var(--gray-500); margin-top:8px;">
+          Todavía no tenés referidos registrados. ¡Compartí tu código y empezá a sumar beneficios!
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const session = JSON.parse(localStorage.getItem('mi_session') || 'null');
+  if (!session) { window.location.href = '../login.html'; }
+  if (session) {
+    const name = session.nombre || 'Inversor';
+    const email = session.email || '—';
+    document.getElementById('userName').textContent = name;
+    document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+    document.getElementById('bigAvatar').textContent = name.charAt(0).toUpperCase();
+    document.getElementById('profileName').textContent = name;
+    document.getElementById('profileEmail').textContent = email;
+    document.getElementById('fieldNombre').value = name;
+    document.getElementById('fieldEmail').value = email;
+    // Generate a referral code from email
+    const code = 'MAN-' + email.split('@')[0].toUpperCase().slice(0,4);
+    document.getElementById('refCode').value = code;
+  }
+
+  function switchTab(name) {
+    const tabs = ['perfil','kyc','referidos'];
+    document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', tabs[i] === name));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
+  }
+
+  function saveProfile() {
+    const nombre = document.getElementById('fieldNombre').value;
+    const current = JSON.parse(localStorage.getItem('mi_session') || '{}');
+    current.nombre = nombre;
+    localStorage.setItem('mi_session', JSON.stringify(current));
+    alert('✅ Perfil guardado correctamente.');
+    location.reload();
+  }
+
+  function copyRef() {
+    const code = document.getElementById('refCode').value;
+    navigator.clipboard.writeText(code).then(() => {
+      const btn = document.querySelector('.btn-copy');
+      btn.textContent = '¡Copiado!';
+      setTimeout(() => { btn.textContent = 'Copiar'; }, 2000);
+    });
+  }
+
+  function logout() {
+    if (confirm('¿Seguro que querés cerrar sesión?')) {
+      localStorage.removeItem('mi_session');
+      window.location.href = '../login.html';
+    }
+  }
+</script>
+</body>
+</html>

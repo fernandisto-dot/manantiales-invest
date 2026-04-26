@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ingresar — Manantiales Invest</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #0f1f3d;
+      --blue: #2563eb;
+      --blue-light: #3b82f6;
+      --blue-dark: #1d4ed8;
+      --gray-100: #f1f5f9;
+      --gray-300: #cbd5e1;
+      --gray-500: #64748b;
+      --gray-700: #334155;
+      --white: #ffffff;
+      --danger: #ef4444;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      background: var(--navy);
+    }
+
+    /* ── LEFT PANEL ── */
+    .panel-left {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 48px;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0a1628 0%, #0f1f3d 50%, #162d56 100%);
+    }
+
+    .panel-left::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(37,99,235,0.15) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(59,130,246,0.1) 0%, transparent 50%);
+    }
+
+    .left-logo {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .left-logo img {
+      height: 48px;
+      width: auto;
+    }
+
+    .left-logo span {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.02em;
+    }
+
+    .left-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .left-content h2 {
+      font-size: 2.6rem;
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 20px;
+    }
+
+    .left-content h2 span {
+      color: var(--blue-light);
+    }
+
+    .left-content p {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,0.65);
+      max-width: 380px;
+      line-height: 1.7;
+      margin-bottom: 40px;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 32px;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-item strong {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -0.03em;
+    }
+
+    .stat-item span {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .left-footer {
+      position: relative;
+      z-index: 1;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.3);
+    }
+
+    /* decorative orb */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+    .orb-1 {
+      width: 400px; height: 400px;
+      background: rgba(37,99,235,0.2);
+      top: -100px; right: -80px;
+    }
+    .orb-2 {
+      width: 300px; height: 300px;
+      background: rgba(59,130,246,0.12);
+      bottom: 60px; left: -60px;
+    }
+
+    /* ── RIGHT PANEL ── */
+    .panel-right {
+      width: 480px;
+      flex-shrink: 0;
+      background: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 56px;
+    }
+
+    .form-box {
+      width: 100%;
+      max-width: 360px;
+    }
+
+    .form-box h1 {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--navy);
+      letter-spacing: -0.03em;
+      margin-bottom: 6px;
+    }
+
+    .form-box .subtitle {
+      font-size: 0.9rem;
+      color: var(--gray-500);
+      margin-bottom: 36px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--gray-700);
+      margin-bottom: 6px;
+      letter-spacing: 0.01em;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--gray-300);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      color: var(--navy);
+      background: var(--white);
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    input[type="email"]:focus,
+    input[type="password"]:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .toggle-pass {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--gray-500);
+      font-size: 1rem;
+      padding: 4px;
+    }
+
+    .forgot {
+      display: block;
+      text-align: right;
+      font-size: 0.8rem;
+      color: var(--blue);
+      text-decoration: none;
+      margin-top: 6px;
+    }
+
+    .forgot:hover { text-decoration: underline; }
+
+    .error-msg {
+      display: none;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: var(--danger);
+      font-size: 0.83rem;
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .error-msg.show { display: block; }
+
+    .btn-login {
+      width: 100%;
+      padding: 13px;
+      background: var(--blue);
+      color: var(--white);
+      font-size: 0.95rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background .2s, transform .1s;
+      letter-spacing: 0.01em;
+      margin-top: 8px;
+    }
+
+    .btn-login:hover { background: var(--blue-dark); }
+    .btn-login:active { transform: scale(0.99); }
+    .btn-login:disabled { opacity: 0.6; cursor: default; }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 24px 0;
+      color: var(--gray-300);
+      font-size: 0.8rem;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--gray-300);
+    }
+
+    .contact-note {
+      text-align: center;
+      font-size: 0.83rem;
+      color: var(--gray-500);
+    }
+
+    .contact-note a {
+      color: var(--blue);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .contact-note a:hover { text-decoration: underline; }
+
+    /* demo hint */
+    .demo-hint {
+      margin-top: 28px;
+      padding: 12px 14px;
+      background: #f0f7ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      color: var(--gray-700);
+      line-height: 1.5;
+    }
+    .demo-hint strong { color: var(--blue); }
+
+    @media (max-width: 860px) {
+      body { flex-direction: column; }
+      .panel-left { min-height: 260px; padding: 32px; }
+      .left-content h2 { font-size: 1.8rem; }
+      .stats-row { gap: 20px; }
+      .panel-right { width: 100%; padding: 40px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LEFT -->
+<div class="panel-left">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <div class="left-logo">
+    <img src="logo-manantiales.png" alt="Manantiales Invest" />
+    <span>Manantiales Invest</span>
+  </div>
+
+  <div class="left-content">
+    <h2>Tu inversión<br/>inmobiliaria<br/><span>inteligente.</span></h2>
+    <p>Accedé a proyectos exclusivos con retornos claros, seguimiento en tiempo real y respaldo de la Desarrolladora Manantiales.</p>
+    <div class="stats-row">
+      <div class="stat-item">
+        <strong>12%</strong>
+        <span>Retorno promedio</span>
+      </div>
+      <div class="stat-item">
+        <strong>$0</strong>
+        <span>Comisión de entrada</span>
+      </div>
+      <div class="stat-item">
+        <strong>3</strong>
+        <span>Proyectos activos</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="left-footer">
+    © 2025 Manantiales Invest · Todos los derechos reservados
+  </div>
+</div>
+
+<!-- RIGHT -->
+<div class="panel-right">
+  <div class="form-box">
+    <h1>Bienvenido</h1>
+    <p class="subtitle">Ingresá a tu cuenta de inversor</p>
+
+    <div class="error-msg" id="errorMsg">
+      Email o contraseña incorrectos. Intentá de nuevo.
+    </div>
+
+    <form id="loginForm" autocomplete="on">
+      <div class="form-group">
+        <label for="email">Correo electrónico</label>
+        <input type="email" id="email" placeholder="tucorreo@email.com" required autocomplete="email" />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <div class="password-wrapper">
+          <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password" />
+          <button type="button" class="toggle-pass" id="togglePass" title="Mostrar/ocultar contraseña">👁</button>
+        </div>
+        <a href="#" class="forgot">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <div id="errorMsg" class="error-msg"></div>
+
+      <button type="submit" class="btn-login" id="btnLogin">Ingresar</button>
+    </form>
+
+    <div class="divider">o</div>
+
+    <p class="contact-note">
+      ¿No tenés cuenta? <a href="mailto:info@manantiales.com">Contactanos</a>
+    </p>
+
+    <div class="demo-hint">
+      <strong>Demo:</strong> usá cualquier email y contraseña para acceder al panel de ejemplo.
+    </div>
+  </div>
+</div>
+
+<script>
+  // Toggle password visibility
+  document.getElementById('togglePass').addEventListener('click', function() {
+    const inp = document.getElementById('password');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    this.textContent = inp.type === 'password' ? '👁' : '🙈';
+  });
+
+  // Login form
+  document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnLogin');
+    const err = document.getElementById('errorMsg');
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    err.classList.remove('show');
+    btn.disabled = true;
+    btn.textContent = 'Ingresando...';
+
+    // Simulate async auth (replace with real API call)
+    setTimeout(() => {
+      // Demo: cualquier email/pass funciona — en producción esto va contra el backend
+      if (email && password.length >= 4) {
+        // Save session
+        localStorage.setItem('mi_session', JSON.stringify({
+          email: email,
+          nombre: email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1),
+          loggedAt: Date.now()
+        }));
+        window.location.href = 'app/dashboard.html';
+      } else {
+        err.textContent = 'La contraseña debe tener al menos 4 caracteres.';
+        err.classList.add('show');
+        btn.disabled = false;
+        btn.textContent = 'Ingresar';
+      }
+    }, 800);
+  });
+
+  // If already logged in, redirect
+  if (localStorage.getItem('mi_session')) {
+    window.location.href = 'app/dashboard.html';
+  }
+</script>
+</body>
+</html>
