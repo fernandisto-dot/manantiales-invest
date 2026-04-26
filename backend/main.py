@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from .core.config import settings
 from .core.database import engine, Base, SessionLocal
@@ -40,12 +39,10 @@ def health():
 
 
 @app.get("/api/dashboard/stats")
-def dashboard_stats(db: Session = None):
+def dashboard_stats():
     """Stats globales para el panel admin."""
     db = SessionLocal()
     try:
-        from .models.ledger import Holding
-        from sqlalchemy import func
         total_inversores = db.query(User).filter(User.role == "inversor").count()
         total_proyectos = db.query(Project).count()
         proyectos_activos = db.query(Project).filter(Project.status == "activo").count()
