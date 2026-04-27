@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Manantiales Invest</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0f1f3d; --navy-light: #162d56; --blue: #2563eb; --blue-light: #3b82f6;
+      --green: #10b981; --red: #ef4444; --yellow: #f59e0b;
+      --gray-100: #f1f5f9; --gray-200: #e2e8f0; --gray-300: #cbd5e1;
+      --gray-500: #64748b; --gray-700: #334155; --white: #ffffff;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--gray-100); display: flex; min-height: 100vh; }
+
+    .sidebar { width: 240px; min-height: 100vh; background: var(--navy); display: flex; flex-direction: column; position: fixed; left: 0; top: 0; }
+    .sidebar-logo { padding: 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); color: white; font-weight: 700; font-size: 16px; }
+    .sidebar-logo span { color: var(--blue-light); }
+    .sidebar-nav { flex: 1; padding: 16px 0; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 12px 20px; color: rgba(255,255,255,0.6); cursor: pointer; transition: all 0.2s; font-size: 14px; border-left: 3px solid transparent; }
+    .nav-item:hover { color: white; background: rgba(255,255,255,0.05); }
+    .nav-item.active { color: white; background: rgba(37,99,235,0.2); border-left-color: var(--blue-light); }
+    .nav-item .icon { font-size: 18px; width: 24px; text-align: center; }
+    .sidebar-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-footer a { color: rgba(255,255,255,0.5); font-size: 13px; text-decoration: none; }
+    .sidebar-footer a:hover { color: white; }
+
+    .main { margin-left: 240px; flex: 1; padding: 32px; }
+    .page { display: none; }
+    .page.active { display: block; }
+    .page-header { margin-bottom: 28px; }
+    .page-header h1 { font-size: 24px; font-weight: 700; color: var(--gray-700); }
+    .page-header p { color: var(--gray-500); font-size: 14px; margin-top: 4px; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+    .stat-box { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .stat-box .label { font-size: 12px; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.05em; }
+    .stat-box .value { font-size: 28px; font-weight: 700; color: var(--gray-700); margin: 8px 0 4px; }
+    .stat-box .sub { font-size: 12px; color: var(--gray-500); }
+
+    .card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 24px; }
+    .card-header { padding: 18px 24px; border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between; align-items: center; }
+    .card-header h2 { font-size: 16px; font-weight: 600; color: var(--gray-700); }
+    .card-body { padding: 24px; }
+
+    .btn { padding: 9px 18px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: all 0.2s; }
+    .btn-primary { background: var(--blue); color: white; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-sm { padding: 5px 12px; font-size: 12px; }
+    .btn-outline { background: transparent; border: 1px solid var(--gray-300); color: var(--gray-700); }
+    .btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 10px 16px; font-size: 12px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--gray-200); background: var(--gray-100); }
+    td { padding: 14px 16px; font-size: 14px; color: var(--gray-700); border-bottom: 1px solid var(--gray-200); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--gray-100); }
+
+    .badge { padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+    .badge-green { background: #d1fae5; color: #065f46; }
+    .badge-yellow { background: #fef3c7; color: #92400e; }
+    .badge-gray { background: var(--gray-200); color: var(--gray-700); }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+    .badge-red { background: #fee2e2; color: #991b1b; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-full { grid-column: 1 / -1; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 13px; font-weight: 500; color: var(--gray-700); }
+    .form-group input, .form-group select, .form-group textarea { padding: 9px 12px; border: 1px solid var(--gray-300); border-radius: 8px; font-size: 14px; color: var(--gray-700); transition: border 0.2s; font-family: inherit; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--blue); }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .form-group small { color: var(--gray-500); font-size: 11px; }
+    .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; grid-column: 1 / -1; }
+
+    .alert { padding: 12px 16px; border-radius: 8px; font-size: 14px; margin-bottom: 16px; display: none; }
+    .alert.show { display: block; }
+    .alert-success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+    .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+    .empty { text-align: center; padding: 48px; color: var(--gray-500); }
+    .empty .icon { font-size: 48px; margin-bottom: 12px; }
+    .loading { text-align: center; padding: 32px; color: var(--gray-500); }
+
+    .img-thumb { width: 64px; height: 44px; object-fit: cover; border-radius: 6px; }
+    .img-placeholder { width: 64px; height: 44px; background: var(--gray-200); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+
+    .section-divider { font-size: 11px; font-weight: 700; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.08em; grid-column: 1 / -1; margin-top: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--gray-200); }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-logo">Manantiales <span>Admin</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-item active" onclick="showPage('dashboard')"><span class="icon">📊</span> Dashboard</div>
+    <div class="nav-item" onclick="showPage('proyectos')"><span class="icon">🏗️</span> Proyectos</div>
+    <div class="nav-item" onclick="showPage('inversores')"><span class="icon">👥</span> Inversores</div>
+    <div class="nav-item" onclick="showPage('suscripciones')"><span class="icon">💰</span> Suscripciones</div>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="../login.html" onclick="localStorage.clear()">← Cerrar sesión</a>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="page-header">
+      <h1>Panel de Control</h1>
+      <p>Resumen general de Manantiales Invest</p>
+    </div>
+    <div class="stats-row">
+      <div class="stat-box"><div class="label">Proyectos</div><div class="value" id="ds-proyectos">—</div><div class="sub">en el sistema</div></div>
+      <div class="stat-box"><div class="label">Inversores</div><div class="value" id="ds-inversores">—</div><div class="sub">registrados</div></div>
+      <div class="stat-box"><div class="label">Capital objetivo</div><div class="value" id="ds-objetivo">—</div><div class="sub">total proyectos activos</div></div>
+      <div class="stat-box"><div class="label">Recaudado</div><div class="value" id="ds-recaudado">—</div><div class="sub">en suscripciones</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h2>Proyectos</h2><button class="btn btn-primary btn-sm" onclick="showPage('proyectos')">Ver todos</button></div>
+      <div id="dash-proyectos-list"><div class="loading">Cargando...</div></div>
+    </div>
+  </div>
+
+  <!-- PROYECTOS -->
+  <div class="page" id="page-proyectos">
+    <div class="page-header"><h1>Proyectos</h1><p>Creá y gestioná los proyectos de inversión</p></div>
+    <div class="card">
+      <div class="card-header"><h2>Nuevo proyecto</h2></div>
+      <div class="card-body">
+        <div id="alert-proyecto" class="alert"></div>
+        <form id="form-proyecto" class="form-grid">
+          <div class="section-divider">Información general</div>
+          <div class="form-group">
+            <label>Nombre *</label>
+            <input type="text" id="p-nombre" placeholder="Ej: Manantiales Fase 2" required />
+          </div>
+          <div class="form-group">
+            <label>Ubicación</label>
+            <input type="text" id="p-ubicacion" placeholder="Ej: Córdoba, Argentina" />
+          </div>
+          <div class="form-group">
+            <label>Ciudad</label>
+            <input type="text" id="p-ciudad" placeholder="Córdoba" />
+          </div>
+          <div class="form-group">
+            <label>País</label>
+            <input type="text" id="p-pais" value="Argentina" />
+          </div>
+          <div class="form-group form-full">
+            <label>Descripción</label>
+            <textarea id="p-descripcion" placeholder="Descripción del proyecto para los inversores..."></textarea>
+          </div>
+          <div class="form-group form-full">
+            <label>URL de imagen principal</label>
+            <input type="url" id="p-imagen" placeholder="https://... (link directo a la foto del proyecto)" />
+            <small>Podés usar cualquier link de imagen: Cloudflare, Google Drive, Imgur, etc.</small>
+          </div>
+
+          <div class="section-divider">Financiero</div>
+          <div class="form-group">
+            <label>Valor total del proyecto (USD)</label>
+            <input type="number" id="p-valor-total" placeholder="1000000" />
+          </div>
+          <div class="form-group">
+            <label>Monto objetivo a recaudar (USD)</label>
+            <input type="number" id="p-monto-objetivo" placeholder="500000" />
+          </div>
+          <div class="form-group">
+            <label>Retorno anual proyectado (%)</label>
+            <input type="number" step="0.01" id="p-retorno" placeholder="18.5" />
+          </div>
+          <div class="form-group">
+            <label>Duración (meses)</label>
+            <input type="number" id="p-periodo" placeholder="24" />
+          </div>
+          <div class="form-group">
+            <label>Presupuesto de obra (USD)</label>
+            <input type="number" id="p-presupuesto" placeholder="800000" />
+          </div>
+
+          <div class="section-divider">Fechas</div>
+          <div class="form-group">
+            <label>Fecha de inicio</label>
+            <input type="date" id="p-fecha-inicio" />
+          </div>
+          <div class="form-group">
+            <label>Fecha fin estimada</label>
+            <input type="date" id="p-fecha-fin" />
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="btn-crear-proyecto">Crear proyecto</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2>Proyectos existentes</h2></div>
+      <div id="proyectos-list"><div class="loading">Cargando...</div></div>
+    </div>
+  </div>
+
+  <!-- INVERSORES -->
+  <div class="page" id="page-inversores">
+    <div class="page-header"><h1>Inversores</h1><p>Registrá y gestioná los inversores</p></div>
+    <div class="card">
+      <div class="card-header"><h2>Nuevo inversor</h2></div>
+      <div class="card-body">
+        <div id="alert-inversor" class="alert"></div>
+        <form id="form-inversor" class="form-grid">
+          <div class="form-group">
+            <label>Nombre *</label>
+            <input type="text" id="i-nombre" placeholder="Juan" required />
+          </div>
+          <div class="form-group">
+            <label>Apellido *</label>
+            <input type="text" id="i-apellido" placeholder="García" required />
+          </div>
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" id="i-email" placeholder="juan@email.com" required />
+          </div>
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="text" id="i-telefono" placeholder="+54 9 351 000 0000" />
+          </div>
+          <div class="form-group">
+            <label>País</label>
+            <input type="text" id="i-pais" placeholder="Argentina" />
+          </div>
+          <div class="form-group">
+            <label>Tipo de inversor</label>
+            <select id="i-tipo">
+              <option value="minorista">Minorista</option>
+              <option value="mayorista">Mayorista</option>
+              <option value="institucional">Institucional</option>
+            </select>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Crear inversor</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h2>Inversores registrados</h2></div>
+      <div id="inversores-list"><div class="loading">Cargando...</div></div>
+    </div>
+  </div>
+
+  <!-- SUSCRIPCIONES -->
+  <div class="page" id="page-suscripciones">
+    <div class="page-header"><h1>Suscripciones</h1><p>Registrá inversiones de inversores en proyectos</p></div>
+    <div class="card">
+      <div class="card-header"><h2>Nueva suscripción</h2></div>
+      <div class="card-body">
+        <div id="alert-suscripcion" class="alert"></div>
+        <form id="form-suscripcion" class="form-grid">
+          <div class="form-group">
+            <label>Proyecto *</label>
+            <select id="s-proyecto" required><option value="">Cargando...</option></select>
+          </div>
+          <div class="form-group">
+            <label>Inversor *</label>
+            <select id="s-inversor" required><option value="">Cargando...</option></select>
+          </div>
+          <div class="form-group">
+            <label>Monto comprometido (USD) *</label>
+            <input type="number" id="s-monto-comprometido" placeholder="10000" required />
+          </div>
+          <div class="form-group">
+            <label>Monto integrado (USD)</label>
+            <input type="number" id="s-monto-integrado" placeholder="10000" value="0" />
+          </div>
+          <div class="form-group">
+            <label>Precio por participación (USD)</label>
+            <input type="number" step="0.01" id="s-precio" placeholder="1" value="1" />
+          </div>
+          <div class="form-group">
+            <label>Referencia de comprobante</label>
+            <input type="text" id="s-comprobante" placeholder="Transferencia #12345" />
+          </div>
+          <div class="form-group form-full">
+            <label>Notas</label>
+            <textarea id="s-notas" placeholder="Notas adicionales..."></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Registrar suscripción</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h2>Historial de suscripciones</h2></div>
+      <div id="suscripciones-list"><div class="empty"><div class="icon">💰</div><p>Seleccioná un proyecto para ver sus suscripciones</p></div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const session = JSON.parse(localStorage.getItem('mi_session') || 'null');
+  if (!session || !session.token) { window.location.href = '../login.html'; }
+
+  const TOKEN = session.token;
+  const API = '/api';
+
+  function authHeaders() {
+    return { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' };
+  }
+
+  async function apiFetch(path, opts = {}) {
+    const res = await fetch(API + path, { headers: authHeaders(), ...opts });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Error en la API');
+    return data;
+  }
+
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    const labels = { dashboard: 'dashboard', proyectos: 'proyectos', inversores: 'inversores', suscripciones: 'suscripciones' };
+    document.querySelectorAll('.nav-item').forEach(n => {
+      if (n.textContent.trim().toLowerCase().includes(labels[name])) n.classList.add('active');
+    });
+    if (name === 'dashboard') loadDashboard();
+    if (name === 'proyectos') loadProyectos();
+    if (name === 'inversores') loadInversores();
+    if (name === 'suscripciones') loadSuscripciones();
+  }
+
+  function showAlert(id, msg, type) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.className = 'alert show alert-' + type;
+    setTimeout(() => el.classList.remove('show'), 5000);
+  }
+
+  function badgeStatus(status) {
+    const map = { activo: 'green', financiado: 'blue', en_obra: 'yellow', finalizado: 'gray', cancelado: 'red', borrador: 'gray' };
+    return `<span class="badge badge-${map[status] || 'gray'}">${status}</span>`;
+  }
+
+  function fmt(n) { return '$' + Number(n || 0).toLocaleString('es-AR'); }
+
+  // DASHBOARD
+  async function loadDashboard() {
+    try {
+      const proyectos = await apiFetch('/proyectos/');
+      const inversores = await apiFetch('/inversores/');
+      document.getElementById('ds-proyectos').textContent = proyectos.length;
+      document.getElementById('ds-inversores').textContent = inversores.length;
+      const objetivo = proyectos.reduce((a, p) => a + Number(p.monto_objetivo || 0), 0);
+      const recaudado = proyectos.reduce((a, p) => a + Number(p.monto_recaudado || 0), 0);
+      document.getElementById('ds-objetivo').textContent = fmt(objetivo);
+      document.getElementById('ds-recaudado').textContent = fmt(recaudado);
+
+      const list = document.getElementById('dash-proyectos-list');
+      if (!proyectos.length) {
+        list.innerHTML = '<div class="empty"><div class="icon">🏗️</div><p>No hay proyectos aún</p></div>';
+        return;
+      }
+      list.innerHTML = `<table>
+        <thead><tr><th>Foto</th><th>Nombre</th><th>Objetivo</th><th>Recaudado</th><th>Retorno</th><th>Estado</th></tr></thead>
+        <tbody>${proyectos.map(p => `<tr>
+          <td>${p.imagen_url ? `<img class="img-thumb" src="${p.imagen_url}" />` : '<div class="img-placeholder">🏗️</div>'}</td>
+          <td><strong>${p.nombre}</strong><br><small style="color:#94a3b8">${p.ubicacion || ''}</small></td>
+          <td>${fmt(p.monto_objetivo)}</td>
+          <td>${fmt(p.monto_recaudado)}</td>
+          <td>${p.retorno_anual_pct ? p.retorno_anual_pct + '%' : '—'}</td>
+          <td>${badgeStatus(p.status)}</td>
+        </tr>`).join('')}</tbody></table>`;
+    } catch(e) { console.error(e); }
+  }
+
+  // PROYECTOS
+  async function loadProyectos() {
+    const list = document.getElementById('proyectos-list');
+    try {
+      const proyectos = await apiFetch('/proyectos/');
+      if (!proyectos.length) {
+        list.innerHTML = '<div class="empty"><div class="icon">🏗️</div><p>No hay proyectos. Creá el primero arriba.</p></div>';
+        return;
+      }
+      list.innerHTML = `<table>
+        <thead><tr><th>Foto</th><th>Nombre</th><th>Ubicación</th><th>Objetivo</th><th>Recaudado</th><th>Retorno</th><th>Período</th><th>Estado</th></tr></thead>
+        <tbody>${proyectos.map(p => `<tr>
+          <td>${p.imagen_url ? `<img class="img-thumb" src="${p.imagen_url}" />` : '<div class="img-placeholder">🏗️</div>'}</td>
+          <td><strong>${p.nombre}</strong><br><small style="color:#94a3b8">${p.descripcion ? p.descripcion.slice(0,60) + '...' : ''}</small></td>
+          <td>${p.ubicacion || '—'}</td>
+          <td>${fmt(p.monto_objetivo)}</td>
+          <td>${fmt(p.monto_recaudado)}</td>
+          <td>${p.retorno_anual_pct ? p.retorno_anual_pct + '%' : '—'}</td>
+          <td>${p.periodo_meses ? p.periodo_meses + ' meses' : '—'}</td>
+          <td>${badgeStatus(p.status)}</td>
+        </tr>`).join('')}</tbody></table>`;
+    } catch(e) {
+      list.innerHTML = '<div class="empty"><p>Error cargando proyectos.</p></div>';
+    }
+  }
+
+  document.getElementById('form-proyecto').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn-crear-proyecto');
+    btn.disabled = true; btn.textContent = 'Creando...';
+    try {
+      await apiFetch('/proyectos/', {
+        method: 'POST',
+        body: JSON.stringify({
+          nombre: document.getElementById('p-nombre').value,
+          descripcion: document.getElementById('p-descripcion').value || null,
+          ubicacion: document.getElementById('p-ubicacion').value || null,
+          ciudad: document.getElementById('p-ciudad').value || null,
+          pais: document.getElementById('p-pais').value || 'Argentina',
+          imagen_url: document.getElementById('p-imagen').value || null,
+          valor_total: Number(document.getElementById('p-valor-total').value) || 0,
+          monto_objetivo: Number(document.getElementById('p-monto-objetivo').value) || 0,
+          retorno_anual_pct: Number(document.getElementById('p-retorno').value) || 0,
+          periodo_meses: Number(document.getElementById('p-periodo').value) || 12,
+          presupuesto_obra: Number(document.getElementById('p-presupuesto').value) || 0,
+          fecha_inicio: document.getElementById('p-fecha-inicio').value || null,
+          fecha_fin_estimada: document.getElementById('p-fecha-fin').value || null
+        })
+      });
+      showAlert('alert-proyecto', '✅ Proyecto creado correctamente', 'success');
+      this.reset();
+      document.getElementById('p-pais').value = 'Argentina';
+      loadProyectos();
+    } catch(e) {
+      showAlert('alert-proyecto', '❌ ' + e.message, 'error');
+    }
+    btn.disabled = false; btn.textContent = 'Crear proyecto';
+  });
+
+  // INVERSORES
+  async function loadInversores() {
+    const list = document.getElementById('inversores-list');
+    try {
+      const inversores = await apiFetch('/inversores/');
+      if (!inversores.length) {
+        list.innerHTML = '<div class="empty"><div class="icon">👥</div><p>No hay inversores aún.</p></div>';
+        return;
+      }
+      list.innerHTML = `<table>
+        <thead><tr><th>ID</th><th>Nombre</th><th>Email</th><th>País</th><th>Tipo</th></tr></thead>
+        <tbody>${inversores.map(i => `<tr>
+          <td>#${i.id}</td>
+          <td><strong>${i.nombre} ${i.apellido || ''}</strong></td>
+          <td>${i.email || '—'}</td>
+          <td>${i.pais || '—'}</td>
+          <td>${i.tipo_inversor || '—'}</td>
+        </tr>`).join('')}</tbody></table>`;
+    } catch(e) {
+      list.innerHTML = '<div class="empty"><p>Error cargando inversores.</p></div>';
+    }
+  }
+
+  document.getElementById('form-inversor').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    try {
+      await apiFetch('/inversores/', {
+        method: 'POST',
+        body: JSON.stringify({
+          nombre: document.getElementById('i-nombre').value,
+          apellido: document.getElementById('i-apellido').value,
+          email: document.getElementById('i-email').value,
+          telefono: document.getElementById('i-telefono').value || null,
+          pais: document.getElementById('i-pais').value || null,
+          tipo_inversor: document.getElementById('i-tipo').value
+        })
+      });
+      showAlert('alert-inversor', '✅ Inversor creado correctamente', 'success');
+      this.reset();
+      loadInversores();
+    } catch(e) {
+      showAlert('alert-inversor', '❌ ' + e.message, 'error');
+    }
+  });
+
+  // SUSCRIPCIONES
+  async function loadSuscripciones() {
+    try {
+      const [proyectos, inversores] = await Promise.all([apiFetch('/proyectos/'), apiFetch('/inversores/')]);
+      document.getElementById('s-proyecto').innerHTML = '<option value="">Seleccioná proyecto</option>' +
+        proyectos.map(p => `<option value="${p.id}">${p.nombre}</option>`).join('');
+      document.getElementById('s-inversor').innerHTML = '<option value="">Seleccioná inversor</option>' +
+        inversores.map(i => `<option value="${i.id}">${i.nombre} ${i.apellido || ''}</option>`).join('');
+    } catch(e) { console.error(e); }
+  }
+
+  document.getElementById('form-suscripcion').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const proyId = document.getElementById('s-proyecto').value;
+    try {
+      await apiFetch('/proyectos/' + proyId + '/suscripciones', {
+        method: 'POST',
+        body: JSON.stringify({
+          investor_id: Number(document.getElementById('s-inversor').value),
+          project_id: Number(proyId),
+          monto_comprometido: Number(document.getElementById('s-monto-comprometido').value),
+          monto_integrado: Number(document.getElementById('s-monto-integrado').value) || 0,
+          precio_participacion: Number(document.getElementById('s-precio').value) || 1,
+          comprobante_ref: document.getElementById('s-comprobante').value || null,
+          notas: document.getElementById('s-notas').value || null
+        })
+      });
+      showAlert('alert-suscripcion', '✅ Suscripción registrada correctamente', 'success');
+      this.reset();
+      document.getElementById('s-precio').value = 1;
+    } catch(e) {
+      showAlert('alert-suscripcion', '❌ ' + e.message, 'error');
+    }
+  });
+
+  loadDashboard();
+</script>
+</body>
+</html>
